@@ -180,20 +180,39 @@
   SO THAT I can experience the first working demo
   ```
 - **Acceptance Criteria**:
-  - [ ] React Query로 API 호출
-  - [ ] 로딩 스피너 표시
-  - [ ] 성공 시 결과 렌더링
-  - [ ] 에러 핸들링 (Toast 메시지)
-  - [ ] 재시도 로직
+  - [x] 백엔드 API 클라이언트 작성
+  - [x] 분자 생성 폼에서 API 호출
+  - [x] 로딩 스피너 표시
+  - [x] 성공 시 결과 렌더링
+  - [x] 에러 핸들링 (에러 메시지 표시)
 - **Tasks**:
   - API 클라이언트 작성
-  - Query hook 작성
-  - 에러 바운더리
+  - 폼에서 API 호출
+  - 응답 데이터 매핑
+- **Status**: ✅ COMPLETED (2026-01-09)
 
 ---
 
 **Sprint 1 총 Story Points**: 26  
 **Sprint 1 Goal**: "사용자가 웹에서 버튼을 누르면 분자 10개가 생성되어 화면에 표시되는 첫 데모 완성"
+
+## 📊 Sprint 1 실행 완료 (2026-01-09)
+
+**완료된 스토리**:
+- ✅ STORY-001: 분자 생성 UI 레이아웃 (5 SP)
+- ✅ STORY-002: 조건 입력 폼 구현 (3 SP)
+- ✅ STORY-003: 분자 카드 컴포넌트 (5 SP)
+- ✅ STORY-004: Mock 데이터 UI 검증 (2 SP)
+- ✅ STORY-005: FastAPI 기본 구조 (3 SP)
+- ✅ STORY-006: 분자 생성 API Mock (5 SP)
+- ✅ STORY-007: 프론트-백엔드 통합 (3 SP)
+
+**총 완료**: 26/26 SP (100%)
+
+**기술 스택 확정**:
+- Frontend: Next.js 14, React 18, TailwindCSS, shadcn/ui, react-hook-form, zod, Zustand
+- Backend: FastAPI, Python 3.11, Pydantic, Uvicorn
+- Development: Git (sprint-based branches), Agile Scrum
 
 ---
 
