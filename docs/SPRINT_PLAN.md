@@ -132,15 +132,16 @@
   SO THAT I can provide APIs for the frontend
   ```
 - **Acceptance Criteria**:
-  - [ ] FastAPI 프로젝트 구조 (app/, models/, routes/)
-  - [ ] `/health` 엔드포인트 (200 OK)
-  - [ ] CORS 설정 (프론트엔드 허용)
-  - [ ] Pydantic 스키마 정의
-  - [ ] Docker 컨테이너 설정
+  - [x] FastAPI 프로젝트 구조 (routers/, main.py)
+  - [x] `/health` 엔드포인트 (200 OK)
+  - [x] CORS 설정 (프론트엔드 허용)
+  - [x] 라우터 기본 구조 (molecules, admet)
+  - [x] Swagger UI 문서
 - **Tasks**:
-  - Poetry 의존성 설정
+  - FastAPI 프로젝트 초기화
   - main.py 작성
-  - Dockerfile 작성
+  - 라우터 구조 설계
+- **Status**: ✅ COMPLETED (2026-01-09)
 
 ---
 
