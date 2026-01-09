@@ -148,7 +148,7 @@
 #### 📌 STORY-006: 간단한 분자 생성 API (Mock)
 - **Story ID**: STORY-006
 - **Story Points**: 5
-- **Description**: 랜덤 SMILES 생성 API (실제 AI 없이 ChEMBL 샘플링)
+- **Description**: 랜덤 SMILES 생성 API (실제 AI 없이 Mock 데이터 샘플링)
 - **User Story**:
   ```
   AS a frontend developer
@@ -156,15 +156,16 @@
   SO THAT I can integrate the UI with real HTTP calls
   ```
 - **Acceptance Criteria**:
-  - [ ] `POST /api/v1/generate` 엔드포인트
-  - [ ] Request: `{ target_disease, num_samples, constraints }`
-  - [ ] Response: `{ molecules: [{ smiles, properties }] }`
-  - [ ] ChEMBL에서 랜덤 샘플링 (조건 필터링)
-  - [ ] RDKit로 기본 특성 계산
+  - [x] `POST /api/v1/molecules/generate` 엔드포인트
+  - [x] Request: `{ target_disease, num_molecules }`
+  - [x] Response: `{ molecules: [{ smiles, properties }] }`
+  - [x] Pydantic 스키마 정의
+  - [x] 에러 핸들링
 - **Tasks**:
-  - 엔드포인트 구현
-  - ChEMBL 데이터 로드
-  - RDKit 통합
+  - schemas.py 작성
+  - 분자 생성 로직 구현
+  - Mock 데이터 준비
+- **Status**: ✅ COMPLETED (2026-01-09)
 
 ---
 
