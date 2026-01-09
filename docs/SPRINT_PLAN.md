@@ -109,14 +109,15 @@
   SO THAT I can verify the user experience before backend integration
   ```
 - **Acceptance Criteria**:
-  - [ ] Mock 분자 데이터 (JSON 파일)
-  - [ ] 로딩 상태 UI (Skeleton)
-  - [ ] 에러 상태 UI (Toast)
-  - [ ] 성공 플로우 시뮬레이션
+  - [x] Mock 분자 데이터 (JSON 파일)
+  - [x] 로딩 상태 UI (Skeleton)
+  - [x] 에러 상태 UI (Toast)
+  - [x] 성공 플로우 시뮬레이션
 - **Tasks**:
   - Mock 데이터 생성
   - 로딩/에러 핸들링
   - 상태 전환 테스트
+- **Status**: ✅ COMPLETED (2026-01-09)
 
 ---
 
