@@ -25,11 +25,13 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { generationFormSchema, diseaseOptions, GenerationFormValues } from "@/lib/schemas/generation";
 import { useGenerationStore } from "@/lib/store/generation";
-import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { generateMolecules } from "@/lib/api/client";
+import { ChevronDown, ChevronUp, Sparkles, AlertCircle } from "lucide-react";
 
 export function GenerationForm() {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const { setFormData, setIsGenerating } = useGenerationStore();
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { setFormData, setIsGenerating, setGeneratedMolecules } = useGenerationStore();
 
   const form = useForm<GenerationFormValues>({
     resolver: zodResolver(generationFormSchema),
@@ -49,20 +51,64 @@ export function GenerationForm() {
   const numMolecules = form.watch("numMolecules");
   const advancedEnabled = form.watch("advancedOptions.enabled");
 
-  function onSubmit(data: GenerationFormValues) {
-    console.log("Form submitted:", data);
-    setFormData(data);
-    setIsGenerating(true);
-    
-    // TODO: API 호출 (STORY-006에서 구현)
-    setTimeout(() => {
+  async function onSubmit(data: GenerationFormValues) {
+    try {
+      setApiError(null);
+      setFormData(data);
+      setIsGenerating(true);
+
+      // 백엔드 API 호출
+      const response = await generateMolecules({
+        target_disease: data.targetDisease!,
+        num_molecules: data.numMolecules,
+        constraints: data.advancedOptions.enabled
+          ? {
+              molecular_weight_min: data.advancedOptions.molecularWeightMin,
+              molecular_weight_max: data.advancedOptions.molecularWeightMax,
+              logp_min: data.advancedOptions.logPMin,
+              logp_max: data.advancedOptions.logPMax,
+            }
+          : undefined,
+      });
+
+      // 응답의 분자 데이터를 store에 저장
+      setGeneratedMolecules(
+        response.molecules.map((mol) => ({
+          id: `${mol.name}-${Math.random().toString(36).substr(2, 9)}`,
+          name: mol.name,
+          smiles: mol.smiles,
+          molecularWeight: mol.molecular_weight,
+          logP: mol.logp,
+          tpsa: mol.tpsa,
+          targetDisease: data.targetDisease!,
+          bindingAffinity: mol.binding_affinity,
+          synthesisScore: mol.synthesis_score,
+        }))
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "분자 생성 중 오류가 발생했습니다";
+      setApiError(errorMessage);
+      console.error("API Error:", error);
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* API Error Message */}
+        {apiError && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-900">오류 발생</p>
+              <p className="text-sm text-red-800">{apiError}</p>
+            </div>
+          </div>
+        )}
+
         {/* Target Disease */}
         <FormField
           control={form.control}
