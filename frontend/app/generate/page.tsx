@@ -1,3 +1,5 @@
+import { GenerationForm } from "@/components/GenerationForm";
+
 export default function GeneratePage() {
   return (
     <div className="container mx-auto px-4 py-8">
@@ -5,17 +7,7 @@ export default function GeneratePage() {
         {/* 좌측: 조건 입력 패널 */}
         <div className="bg-white border rounded-lg p-6 overflow-y-auto">
           <h2 className="text-2xl font-bold mb-6">분자 생성</h2>
-          
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                타겟 질환
-              </label>
-              <div className="text-sm text-gray-500">
-                조건 입력 폼이 여기에 들어갑니다 (STORY-002)
-              </div>
-            </div>
-          </div>
+          <GenerationForm />
         </div>
 
         {/* 우측: 결과 표시 영역 */}

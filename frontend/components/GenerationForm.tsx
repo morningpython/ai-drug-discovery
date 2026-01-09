@@ -1,126 +1,262 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { generationFormSchema, diseaseOptions, GenerationFormValues } from "@/lib/schemas/generation";
+import { useGenerationStore } from "@/lib/store/generation";
+import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 
-interface GenerationFormProps {
-  onGenerate: (conditions: any) => void
-  isGenerating: boolean
-}
+export function GenerationForm() {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const { setFormData, setIsGenerating } = useGenerationStore();
 
-export function GenerationForm({ onGenerate, isGenerating }: GenerationFormProps) {
-  const [targetDisease, setTargetDisease] = useState('hepatitis_b')
-  const [numMolecules, setNumMolecules] = useState([50])
-  const [showAdvanced, setShowAdvanced] = useState(false)
+  const form = useForm<GenerationFormValues>({
+    resolver: zodResolver(generationFormSchema),
+    defaultValues: {
+      targetDisease: undefined,
+      numMolecules: 20,
+      advancedOptions: {
+        enabled: false,
+        molecularWeightMin: 200,
+        molecularWeightMax: 500,
+        logPMin: -1,
+        logPMax: 5,
+      },
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onGenerate({
-      targetDisease,
-      numMolecules: numMolecules[0],
-    })
+  const numMolecules = form.watch("numMolecules");
+  const advancedEnabled = form.watch("advancedOptions.enabled");
+
+  function onSubmit(data: GenerationFormValues) {
+    console.log("Form submitted:", data);
+    setFormData(data);
+    setIsGenerating(true);
+    
+    // TODO: API 호출 (STORY-006에서 구현)
+    setTimeout(() => {
+      setIsGenerating(false);
+    }, 2000);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Target Disease */}
-      <div className="space-y-2">
-        <Label htmlFor="target-disease">Target Disease</Label>
-        <Select value={targetDisease} onValueChange={setTargetDisease}>
-          <SelectTrigger id="target-disease">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="hepatitis_b">Hepatitis B (HBV)</SelectItem>
-            <SelectItem value="glp1">GLP-1 Obesity</SelectItem>
-            <SelectItem value="alzheimers">Alzheimer's Disease</SelectItem>
-            <SelectItem value="hair_loss">Hair Loss (Alopecia)</SelectItem>
-            <SelectItem value="longevity">Longevity</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Number of Molecules */}
-      <div className="space-y-2">
-        <Label htmlFor="num-molecules">
-          Number of Molecules: <span className="font-bold text-primary">{numMolecules[0]}</span>
-        </Label>
-        <Slider
-          id="num-molecules"
-          min={10}
-          max={100}
-          step={10}
-          value={numMolecules}
-          onValueChange={setNumMolecules}
-          className="py-4"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Target Disease */}
+        <FormField
+          control={form.control}
+          name="targetDisease"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>타겟 질환</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="질환을 선택하세요" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {diseaseOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                분자를 생성할 타겟 질환을 선택하세요
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>10</span>
-          <span>100</span>
+
+        {/* Number of Molecules */}
+        <FormField
+          control={form.control}
+          name="numMolecules"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                생성할 분자 개수: <span className="font-bold text-primary">{numMolecules}</span>
+              </FormLabel>
+              <FormControl>
+                <Slider
+                  min={10}
+                  max={100}
+                  step={10}
+                  value={[field.value]}
+                  onValueChange={(value) => field.onChange(value[0])}
+                  className="py-4"
+                />
+              </FormControl>
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>10개</span>
+                <span>100개</span>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Advanced Options Toggle */}
+        <div className="border-t pt-4">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full"
+          >
+            {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            고급 옵션 {showAdvanced ? "숨기기" : "보기"}
+          </button>
         </div>
-      </div>
 
-      {/* Advanced Options Toggle */}
-      <div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="w-full"
-        >
-          {showAdvanced ? '− Hide' : '+ Show'} Advanced Options
-        </Button>
-      </div>
+        {/* Advanced Options */}
+        {showAdvanced && (
+          <div className="space-y-4 pt-2 border-t">
+            {/* Enable Advanced Filtering */}
+            <FormField
+              control={form.control}
+              name="advancedOptions.enabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">고급 필터링 활성화</FormLabel>
+                    <FormDescription>
+                      분자량 및 LogP 범위를 지정합니다
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-      {/* Advanced Options */}
-      {showAdvanced && (
-        <div className="space-y-4 pt-2 border-t">
-          <div className="space-y-2">
-            <Label htmlFor="min-mw">Min Molecular Weight (Da)</Label>
-            <Input
-              id="min-mw"
-              type="number"
-              placeholder="200"
-              defaultValue="200"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="max-mw">Max Molecular Weight (Da)</Label>
-            <Input
-              id="max-mw"
-              type="number"
-              placeholder="500"
-              defaultValue="500"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="logp">LogP Range</Label>
-            <Input
-              id="logp"
-              type="text"
-              placeholder="0-5"
-              defaultValue="0-5"
-            />
-          </div>
-        </div>
-      )}
+            {/* Molecular Weight Range */}
+            {advancedEnabled && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="advancedOptions.molecularWeightMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>최소 분자량 (Da)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="200"
+                            {...field}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="advancedOptions.molecularWeightMax"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>최대 분자량 (Da)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="500"
+                            {...field}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-      {/* Generate Button */}
-      <Button type="submit" className="w-full" size="lg" disabled={isGenerating}>
-        {isGenerating ? (
-          <>
-            <span className="animate-spin mr-2">⏳</span>
-            Generating...
-          </>
-        ) : (
-          'Generate Molecules'
+                {/* LogP Range */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="advancedOptions.logPMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>최소 LogP</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="-1"
+                            step="0.1"
+                            {...field}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          -5 ~ 10 범위
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="advancedOptions.logPMax"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>최대 LogP</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="5"
+                            step="0.1"
+                            {...field}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          -5 ~ 10 범위
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
+          </div>
         )}
-      </Button>
-    </form>
-  )
+
+        {/* Generate Button */}
+        <Button type="submit" className="w-full" size="lg">
+          <Sparkles className="mr-2 h-5 w-5" />
+          분자 생성하기
+        </Button>
+      </form>
+    </Form>
+  );
 }
