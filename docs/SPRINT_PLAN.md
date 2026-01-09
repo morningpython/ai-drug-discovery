@@ -61,15 +61,16 @@
   SO THAT I can specify what kind of molecules I need
   ```
 - **Acceptance Criteria**:
-  - [ ] 타겟 질환 선택 (드롭다운: HBV, GLP-1, Alzheimer's, Hair Loss)
-  - [ ] 분자 개수 슬라이더 (10-100)
-  - [ ] 고급 옵션 (토글): MW 범위, LogP 범위
-  - [ ] "생성하기" 버튼
-  - [ ] 폼 밸리데이션 (react-hook-form)
+  - [x] 타겟 질환 선택 (드롭다운: HBV, GLP-1, Alzheimer's, Hair Loss)
+  - [x] 분자 개수 슬라이더 (10-100)
+  - [x] 고급 옵션 (토글): MW 범위, LogP 범위
+  - [x] "생성하기" 버튼
+  - [x] 폼 밸리데이션 (react-hook-form)
 - **Tasks**:
   - 폼 컴포넌트 개발
   - Zod 스키마 정의
   - 상태 관리 (Zustand)
+- **Status**: ✅ COMPLETED (2026-01-09)
 
 ---
 
