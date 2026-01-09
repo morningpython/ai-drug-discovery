@@ -85,15 +85,16 @@
   SO THAT I can quickly browse results
   ```
 - **Acceptance Criteria**:
-  - [ ] 분자 2D 구조 이미지 (RDKit 서버 렌더링)
-  - [ ] SMILES 문자열 표시 (복사 가능)
-  - [ ] 기본 특성 표시 (MW, LogP, TPSA)
-  - [ ] "상세보기" 버튼
-  - [ ] 그리드 레이아웃 (3열)
+  - [x] 분자 2D 구조 이미지 (RDKit 서버 렌더링)
+  - [x] SMILES 문자열 표시 (복사 가능)
+  - [x] 기본 특성 표시 (MW, LogP, TPSA)
+  - [x] "상세보기" 버튼
+  - [x] 그리드 레이아웃 (3열)
 - **Tasks**:
   - MoleculeCard 컴포넌트
   - 이미지 렌더링 API 연동
   - 클립보드 복사 기능
+- **Status**: ✅ COMPLETED (2026-01-09)
 
 ---
 
