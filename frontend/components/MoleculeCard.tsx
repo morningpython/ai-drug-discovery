@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Copy, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 interface MoleculeCardProps {
   molecule: Molecule;
@@ -125,10 +126,12 @@ export function MoleculeCard({ molecule }: MoleculeCardProps) {
 
       {/* 액션 버튼 */}
       <div className="border-t p-3 pt-3">
-        <Button className="w-full" size="sm" variant="outline">
-          <ExternalLink className="mr-2 h-4 w-4" />
-          상세보기
-        </Button>
+        <Link href={`/molecule/${molecule.id}`}>
+          <Button className="w-full" size="sm" variant="outline">
+            <ExternalLink className="mr-2 h-4 w-4" />
+            상세보기
+          </Button>
+        </Link>
       </div>
     </Card>
   );

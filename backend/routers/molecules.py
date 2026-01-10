@@ -3,7 +3,9 @@
 """
 
 import random
+from typing import Optional
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 from schemas import MoleculeGenerationRequest, MoleculeGenerationResponse, MoleculeProperty
 
 router = APIRouter(
@@ -185,3 +187,147 @@ async def search_molecules(
         "total": 0,
         "disease": disease,
     }
+
+
+@router.get("/{smiles}/properties")
+async def get_molecule_properties(smiles: str):
+    """
+    분자 속성 계산 엔드포인트 (상세 특성)
+    
+    Args:
+        smiles: SMILES 문자열 (URL 인코딩 필요)
+    
+    Returns:
+        분자의 상세 특성
+    """
+    try:
+        # TODO: RDKit로 실제 계산 구현
+        # from rdkit import Chem
+        # from rdkit.Chem import Descriptors, Lipinski
+        
+        # Mock 데이터 반환 (실제로는 RDKit 계산)
+        return {
+            "smiles": smiles,
+            "molecular_weight": round(random.uniform(150, 500), 2),
+            "logp": round(random.uniform(-1, 5), 2),
+            "tpsa": round(random.uniform(20, 140), 2),
+            "hbd": random.randint(0, 5),
+            "hba": random.randint(0, 10),
+            "rotatable_bonds": random.randint(0, 10),
+            "qed": round(random.uniform(0.3, 0.95), 3),
+            "lipinski_violations": random.randint(0, 2),
+            "lipinski_rules": {
+                "mw_under_500": True,
+                "logp_under_5": True,
+                "hbd_under_5": True,
+                "hba_under_10": True,
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"속성 계산 오류: {str(e)}")
+
+
+@router.get("/{smiles}/sdf")
+async def get_molecule_3d(smiles: str):
+    """
+    SMILES를 3D SDF 포맷으로 변환
+    
+    Args:
+        smiles: SMILES 문자열
+    
+    Returns:
+        SDF 포맷 데이터 (Content-Type: chemical/x-mdl-sdfile)
+    """
+    try:
+        # TODO: RDKit로 실제 3D 좌표 생성
+        # from rdkit import Chem
+        # from rdkit.Chem import AllChem
+        # mol = Chem.MolFromSmiles(smiles)
+        # AllChem.EmbedMolecule(mol, AllChem.ETKDG())
+        # sdf = Chem.MolToMolBlock(mol)
+        
+        # Placeholder SDF
+        sdf_data = f"""
+  Molecule from {smiles}
+  3DMol.js    
+
+  6  5  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.2000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.8000    1.0392    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.2000    2.0784    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    0.0000    2.0784    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.6000    1.0392    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  2  3  2  0  0  0  0
+  3  4  1  0  0  0  0
+  4  5  2  0  0  0  0
+  5  6  1  0  0  0  0
+M  END
+$$$$
+"""
+        return Response(content=sdf_data, media_type="chemical/x-mdl-sdfile")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"3D 변환 오류: {str(e)}")
+
+
+@router.post("/search/similar")
+async def search_similar_molecules(
+    query_smiles: str,
+    threshold: float = 0.7,
+    limit: int = 10
+):
+    """
+    분자 유사성 검색 엔드포인트
+    
+    Args:
+        query_smiles: 검색할 기준 분자의 SMILES
+        threshold: Tanimoto 유사도 임계값 (0.0-1.0)
+        limit: 반환할 최대 개수
+    
+    Returns:
+        유사한 분자 리스트 (유사도 점수 포함)
+    """
+    try:
+        # TODO: RDKit로 실제 fingerprint 계산 및 유사도 검색
+        # from rdkit import Chem
+        # from rdkit.Chem import AllChem, DataStructs
+        # query_mol = Chem.MolFromSmiles(query_smiles)
+        # query_fp = AllChem.GetMorganFingerprintAsBitVect(query_mol, 2, 2048)
+        
+        # Mock 유사 분자 생성
+        similar_molecules = []
+        all_molecules = []
+        
+        # 모든 질환의 분자 수집
+        for disease_mols in MOCK_MOLECULES_BY_DISEASE.values():
+            all_molecules.extend(disease_mols)
+        
+        # 랜덤하게 유사 분자 선택 (실제로는 fingerprint 유사도 계산)
+        import random
+        selected = random.sample(all_molecules, min(limit, len(all_molecules)))
+        
+        for mol in selected:
+            similarity = random.uniform(threshold, 1.0)  # Mock similarity
+            similar_molecules.append({
+                "smiles": mol["smiles"],
+                "name": mol["name"],
+                "similarity": round(similarity, 3),
+                "molecular_weight": mol["molecular_weight"],
+                "logp": mol["logp"],
+                "tpsa": mol["tpsa"],
+            })
+        
+        # 유사도 순으로 정렬
+        similar_molecules.sort(key=lambda x: x["similarity"], reverse=True)
+        
+        return {
+            "status": "success",
+            "query_smiles": query_smiles,
+            "threshold": threshold,
+            "num_found": len(similar_molecules),
+            "molecules": similar_molecules,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"유사성 검색 오류: {str(e)}")
+
