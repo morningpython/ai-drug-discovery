@@ -20,7 +20,7 @@ export default function GeneratePage() {
   }, []);
 
   useEffect(() => {
-    if (formData.targetDisease && isGenerating) {
+    if (formData && formData.targetDisease && isGenerating) {
       setError(null);
       setShowSuccess(false);
 
