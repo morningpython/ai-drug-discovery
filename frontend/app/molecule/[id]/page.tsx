@@ -7,7 +7,7 @@ import { mockMolecules } from "@/lib/data/mockMolecules";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Copy } from "lucide-react";
+import { ArrowLeft, Plus, Copy, FlaskConical } from "lucide-react";
 import Link from "next/link";
 import { Molecule3DViewer } from "@/components/Molecule3DViewer";
 
@@ -107,10 +107,18 @@ export default function MoleculeDetailPage() {
               <p className="text-sm text-gray-500 mt-1">ID: {molecule.id}</p>
             </div>
           </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            프로젝트에 추가
-          </Button>
+          <div className="flex gap-2">
+            <Link href={`/molecule/${params.id}/admet`}>
+              <Button>
+                <FlaskConical className="mr-2 h-4 w-4" />
+                ADMET 예측
+              </Button>
+            </Link>
+            <Button variant="outline">
+              <Plus className="mr-2 h-4 w-4" />
+              프로젝트에 추가
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
