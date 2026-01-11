@@ -123,4 +123,111 @@ describe('ADMET Page', () => {
     expect(screen.getByText('재예측')).toBeInTheDocument();
     expect(screen.getByText('결과 다운로드')).toBeInTheDocument();
   });
-});
+
+  it('handles repredict button click', async () => {
+    const mockFetch = jest.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockADMETResponse,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ...mockADMETResponse, overall_score: 0.85 }),
+      });
+    
+    global.fetch = mockFetch;
+
+    render(<ADMETPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('재예측')).toBeInTheDocument();
+    });
+
+    const repredictButton = screen.getByText('재예측');
+    fireEvent.click(repredictButton);
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('handles download button presence', async () => {
+    render(<ADMETPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('ADMET 예측 결과')).toBeInTheDocument();
+    });
+
+    const downloadButtons = screen.getAllByRole('button');
+    const downloadButton = downloadButtons.find(btn => btn.textContent?.includes('결과 다운로드'));
+    
+    expect(downloadButton).toBeTruthy();
+  });
+
+  it('handles non-ok response from API', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+    });
+
+    render(<ADMETPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('오류 발생')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('ADMET 예측 결과를 불러올 수 없습니다.')).toBeInTheDocument();
+  });
+
+  it('does not download when no result is available', async () => {
+    const mockCreateObjectURL = jest.fn();
+    global.URL.createObjectURL = mockCreateObjectURL;
+
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
+
+    render(<ADMETPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('오류 발생')).toBeInTheDocument();
+    });
+
+    // 에러 상태에서는 다운로드 버튼이 없어야 함
+    expect(screen.queryByText('결과 다운로드')).not.toBeInTheDocument();
+    expect(mockCreateObjectURL).not.toHaveBeenCalled();
+  });
+
+  it('navigates to molecule detail page', async () => {
+    render(<ADMETPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('분자 상세')).toBeInTheDocument();
+    });
+
+    const detailButton = screen.getByText('분자 상세');
+    expect(detailButton.closest('a')).toHaveAttribute('href', '/molecule/mol-001');
+  });
+
+  it('displays all ADMET categories with scores', async () => {
+    render(<ADMETPage />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('흡수 (Absorption)')[0]).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByText('분포 (Distribution)')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('대사 (Metabolism)')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('배설 (Excretion)')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('독성 (Toxicity)')[0]).toBeInTheDocument();
+  });
+
+  it('displays detailed properties', async () => {
+    render(<ADMETPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Caco-2 투과성')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('BBB 투과성')).toBeInTheDocument();
+    expect(screen.getByText('반감기')).toBeInTheDocument();
+    expect(screen.getByText('간독성')).toBeInTheDocument();
+  });});
